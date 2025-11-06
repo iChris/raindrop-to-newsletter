@@ -2,6 +2,8 @@
 
 This is a simple Node.js script that fetches bookmarks from a specific Raindrop.io collection over a defined date range. It formats these links into a Markdown file, grouped by tag, making it easy to copy and paste into a newsletter.
 
+I personally recommend using [Buttondown](https://buttondown.email/refer/lemoncasting) for your email newsletter writing and sending, but anything that supports Markdown will work.
+
 **It was coded using Gemini 2.5 Pro. Use at your own risk.**
 
 ## Features
