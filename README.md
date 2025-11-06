@@ -49,7 +49,7 @@ This is a simple Node.js script that fetches bookmarks from a specific Raindrop.
     RAINDROP_API_TOKEN=YOUR_API_TOKEN_GOES_HERE
 
     # Get this by opening your collection on Raindrop.io
-    # The URL will be [https://app.raindrop.io/my/12345678](https://app.raindrop.io/my/12345678)
+    # The URL will be https://app.raindrop.io/my/12345678
     RAINDROP_COLLECTION_ID=YOUR_COLLECTION_ID_GOES_HERE
     ```
 
