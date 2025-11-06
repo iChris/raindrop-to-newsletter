@@ -40,7 +40,6 @@ This is a simple Node.js script that fetches bookmarks from a specific Raindrop.
     ```bash
     cp .env.example .env
     ```
-    *(Note: You'll need to create a `.env.example` file first, or just create `.env` manually).*
 
     Your `.env` file **must** contain the following:
 
