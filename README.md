@@ -2,6 +2,8 @@
 
 This is a simple Node.js script that fetches bookmarks from a specific Raindrop.io collection over a defined date range. It formats these links into a Markdown file, grouped by tag, making it easy to copy and paste into a newsletter.
 
+**It was coded using Gemini 2.5 Pro. Use at your own risk.**
+
 ## Features
 
 * Pulls links from a specific Raindrop.io collection.
@@ -14,8 +16,8 @@ This is a simple Node.js script that fetches bookmarks from a specific Raindrop.
 ## Requirements
 
 * [Node.js](https://nodejs.org/) (v18 or later)
-* A Raindrop.io account
-* A Raindrop.io API Token
+* A [Raindrop.io account](https://raindrop.io)
+* A [Raindrop.io API Token](https://app.raindrop.io/settings/integrations)
 
 ## Setup Instructions
 
