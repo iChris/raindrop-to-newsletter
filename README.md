@@ -4,6 +4,8 @@ This is a web application that fetches bookmarks from a specific Raindrop.io col
 
 I personally recommend using [Buttondown](https://buttondown.email/refer/lemoncasting) for your email newsletter writing and sending, but anything that supports Markdown will work.
 
+View the app [here](https://raindroptonewsletter.chrisenns.com).
+
 **It was coded using Gemini 3 Pro. Use at your own risk.**
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/92b28f76-2651-43bd-a030-749d201e6b51/deploy-status)](https://app.netlify.com/projects/raindroptonewsletter/deploys)
