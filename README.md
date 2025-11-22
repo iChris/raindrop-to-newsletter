@@ -6,6 +6,8 @@ I personally recommend using [Buttondown](https://buttondown.email/refer/lemonca
 
 **It was coded using Gemini 3 Pro. Use at your own risk.**
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/92b28f76-2651-43bd-a030-749d201e6b51/deploy-status)](https://app.netlify.com/projects/raindroptonewsletter/deploys)
+
 ## Features
 
 *   **Web Interface**: Easy-to-use web interface to generate your newsletter.
