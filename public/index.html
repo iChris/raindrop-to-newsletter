@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raindrop to Newsletter</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Raindrop to Newsletter</h1>
+            <p>Generate your weekly newsletter from Raindrop.io bookmarks.</p>
+        </header>
+
+        <main>
+            <div class="credentials-form">
+                <div class="form-group">
+                    <label for="apiToken">Raindrop API Token</label>
+                    <input type="password" id="apiToken" placeholder="Enter your API Token">
+                    <p class="help-text">Get your token from <a href="https://app.raindrop.io/settings/integrations" target="_blank">Settings > Integrations > For Developers</a>.</p>
+                </div>
+                <div class="form-group">
+                    <label for="collectionId">Collection ID</label>
+                    <input type="text" id="collectionId" placeholder="Enter Collection ID">
+                    <p class="help-text">Open your collection on Raindrop.io. The ID is the number at the end of the URL (e.g., app.raindrop.io/my/<b>12345678</b>).</p>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="saveCredentials">
+                    <label for="saveCredentials">Save credentials to browser</label>
+                </div>
+            </div>
+
+            <button id="generateBtn" class="primary-btn">Generate links from last week</button>
+            
+            <div id="status" class="status-message hidden"></div>
+
+            <div id="resultArea" class="hidden">
+                <div class="result-header">
+                    <h2>Generated Markdown</h2>
+                    <button id="copyBtn" class="secondary-btn">Copy to Clipboard</button>
+                </div>
+                <textarea id="markdownOutput" readonly></textarea>
+            </div>
+        </main>
+
+        <footer>
+            <p>Powered by <a href="https://raindrop.io" target="_blank">Raindrop.io</a></p>
+        </footer>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generateBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const statusDiv = document.getElementById('status');
+        const resultArea = document.getElementById('resultArea');
+        const markdownOutput = document.getElementById('markdownOutput');
+        const apiTokenInput = document.getElementById('apiToken');
+        const collectionIdInput = document.getElementById('collectionId');
+        const saveCredentialsCheckbox = document.getElementById('saveCredentials');
+
+        // Load saved credentials
+        if (localStorage.getItem('raindrop_api_token')) {
+            apiTokenInput.value = localStorage.getItem('raindrop_api_token');
+            collectionIdInput.value = localStorage.getItem('raindrop_collection_id');
+            saveCredentialsCheckbox.checked = true;
+        }
+
+        generateBtn.addEventListener('click', async () => {
+            const apiToken = apiTokenInput.value.trim();
+            const collectionId = collectionIdInput.value.trim();
+
+            if (!apiToken || !collectionId) {
+                statusDiv.textContent = 'Please enter both API Token and Collection ID.';
+                statusDiv.className = 'status-message error';
+                statusDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (saveCredentialsCheckbox.checked) {
+                localStorage.setItem('raindrop_api_token', apiToken);
+                localStorage.setItem('raindrop_collection_id', collectionId);
+            } else {
+                localStorage.removeItem('raindrop_api_token');
+                localStorage.removeItem('raindrop_collection_id');
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+            statusDiv.classList.add('hidden');
+            resultArea.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/newsletter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ apiToken, collectionId })
+                });
+                
+                const data = await response.json();
+
+                if (response.ok) {
+                    markdownOutput.value = data.markdown;
+                    resultArea.classList.remove('hidden');
+                    statusDiv.textContent = `Success! Found ${data.count} links.`;
+                    statusDiv.className = 'status-message success';
+                } else {
+                    throw new Error(data.error || 'Unknown error occurred');
+                }
+            } catch (error) {
+                statusDiv.textContent = `Error: ${error.message}`;
+                statusDiv.className = 'status-message error';
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate links from last week';
+                statusDiv.classList.remove('hidden');
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            markdownOutput.select();
+            navigator.clipboard.writeText(markdownOutput.value).then(() => {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

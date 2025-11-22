@@ -28,12 +28,12 @@ const filenameDate = queryStartDate;
 
 
 // 4. Your fetch function (with error handling)
-async function fetchLinks() {
+async function fetchLinks(apiToken, collectionId) {
   const search = new URLSearchParams({
     search: `created:>=${queryStartDate} created:<${queryEndDate}`,
   });
 
-  const url = new URL(`https://api.raindrop.io/rest/v1/raindrops/${COLLECTION_ID}`);
+  const url = new URL(`https://api.raindrop.io/rest/v1/raindrops/${collectionId}`);
   url.search = search;
 
   console.log(`Fetching links from: ${url}`);
@@ -42,7 +42,7 @@ async function fetchLinks() {
 
   const rsp = await fetch(url, {
     headers: {
-      Authorization: `Bearer ${API_TOKEN}`,
+      Authorization: `Bearer ${apiToken}`,
     },
   });
 
@@ -54,22 +54,21 @@ async function fetchLinks() {
 }
 
 // 5. A main function to run the script and save the file
-async function main() {
+export async function getNewsletterData(apiToken, collectionId) {
   // Add a check to make sure variables were loaded
-  if (!API_TOKEN || !COLLECTION_ID) {
-    console.error("\n--- ❌ Error: Secrets not found! ---");
-    console.error("Please make sure you have a .env file with RAINDROP_API_TOKEN and RAINDROP_COLLECTION_ID.");
-    return;
+  if (!apiToken || !collectionId) {
+    throw new Error("Missing credentials. Please provide API Token and Collection ID.");
   }
 
-  try {
-    const data = await fetchLinks();
+  const data = await fetchLinks(apiToken, collectionId);
 
-    if (!data.items || data.items.length === 0) {
-      console.log("\n--- 🟡 No links found for this date range. ---");
-      console.log(`Query was: created:>=${queryStartDate} created:<${queryEndDate}`);
-      return;
-    }
+  if (!data.items || data.items.length === 0) {
+    return {
+        markdown: "No links found for this date range.",
+        count: 0,
+        filename: `${filenameDate} - links for newsletter.md`
+    };
+  }
     
     // --- 1. Build the Markdown Output ---
     
@@ -107,22 +106,52 @@ async function main() {
       markdownOutput.push("\n");
     }
 
-    // --- 2. Save to File ---
-    const filename = `${filenameDate} - links for newsletter.md`;
     const fullMarkdown = markdownOutput.join('\n');
-    const filePath = path.join(process.cwd(), filename);
+    const filename = `${filenameDate} - links for newsletter.md`;
 
-    await writeFile(filePath, fullMarkdown);
-
-    // --- 3. Log Success to Terminal ---
-    console.log("\n--- ✅ Success! ---");
-    console.log(`Saved ${data.items.length} links to: ${filePath}`);
-
-  } catch (error) {
-    console.error("\n--- ❌ Error running script ---");
-    console.error(error.message);
-  }
+    return {
+        markdown: fullMarkdown,
+        count: data.items.length,
+        filename: filename
+    };
 }
 
-// 6. Run the main function
-main();
+async function main() {
+  // 2. READ THE VARIABLES FROM 'process.env'
+  const API_TOKEN = process.env.RAINDROP_API_TOKEN;
+  const COLLECTION_ID = process.env.RAINDROP_COLLECTION_ID;
+
+  // Add a check to make sure variables were loaded
+  if (!API_TOKEN || !COLLECTION_ID) {
+    console.error("\n--- ❌ Error: Secrets not found! ---");
+    console.error("Please make sure you have a .env file with RAINDROP_API_TOKEN and RAINDROP_COLLECTION_ID.");
+    return;
+  }
+
+    try {
+        const result = await getNewsletterData(API_TOKEN, COLLECTION_ID);
+        
+        if (result.count === 0) {
+             console.log("\n--- 🟡 No links found for this date range. ---");
+             return;
+        }
+
+        // --- 2. Save to File ---
+        const filePath = path.join(process.cwd(), result.filename);
+        await writeFile(filePath, result.markdown);
+
+        // --- 3. Log Success to Terminal ---
+        console.log("\n--- ✅ Success! ---");
+        console.log(`Saved ${result.count} links to: ${filePath}`);
+
+    } catch (error) {
+        console.error("\n--- ❌ Error running script ---");
+        console.error(error.message);
+    }
+}
+
+// 6. Run the main function if executed directly
+import { fileURLToPath } from 'url';
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}
