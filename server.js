@@ -19,6 +19,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.post('/api/newsletter', async (req, res) => {
     try {
         const { apiToken, collectionId } = req.body;
+        console.log("Server received body:", req.body);
+        console.log("Server extracted token:", apiToken ? apiToken.substring(0, 5) + "..." : "undefined");
 
         if (!apiToken || !collectionId) {
             return res.status(400).json({ error: 'Missing API Token or Collection ID' });

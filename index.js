@@ -6,29 +6,15 @@ import 'dotenv/config'; // <-- 1. LOAD THE .env FILE
 
 // --- Configuration ---
 // 2. READ THE VARIABLES FROM 'process.env'
-const API_TOKEN = process.env.RAINDROP_API_TOKEN;
-const COLLECTION_ID = process.env.RAINDROP_COLLECTION_ID;
+// const API_TOKEN = process.env.RAINDROP_API_TOKEN;
+// const COLLECTION_ID = process.env.RAINDROP_COLLECTION_ID;
 // ---
 
 // 3. Your date logic
-const todayDate = new Date();
-
-// Find the most recent Tuesday.
-const mostRecentTuesday = startOfWeek(todayDate, { weekStartsOn: 2 });
-
-// The end of our period is the *next* Monday (6 days after Tuesday).
-const nextMonday = addDays(mostRecentTuesday, 6);
-
-// --- Format dates for API query ---
-const queryStartDate = format(mostRecentTuesday, "yyyy-MM-dd");
-const queryEndDate = format(addDays(nextMonday, 1), "yyyy-MM-dd");
-
-// --- Format date for the filename ---
-const filenameDate = queryStartDate;
-
+// MOVED INSIDE FUNCTION
 
 // 4. Your fetch function (with error handling)
-async function fetchLinks(apiToken, collectionId) {
+async function fetchLinks(apiToken, collectionId, queryStartDate, queryEndDate, mostRecentTuesday, nextMonday) {
   const search = new URLSearchParams({
     search: `created:>=${queryStartDate} created:<${queryEndDate}`,
   });
@@ -38,7 +24,7 @@ async function fetchLinks(apiToken, collectionId) {
 
   console.log(`Fetching links from: ${url}`);
   console.log(`Querying from ${mostRecentTuesday.toDateString()} to ${nextMonday.toDateString()}`);
-
+  console.log(`Using API Token: ${apiToken.substring(0, 5)}...`);
 
   const rsp = await fetch(url, {
     headers: {
@@ -60,7 +46,16 @@ export async function getNewsletterData(apiToken, collectionId) {
     throw new Error("Missing credentials. Please provide API Token and Collection ID.");
   }
 
-  const data = await fetchLinks(apiToken, collectionId);
+  // --- Date Logic moved here ---
+  const todayDate = new Date();
+  const mostRecentTuesday = startOfWeek(todayDate, { weekStartsOn: 2 });
+  const nextMonday = addDays(mostRecentTuesday, 6);
+  const queryStartDate = format(mostRecentTuesday, "yyyy-MM-dd");
+  const queryEndDate = format(addDays(nextMonday, 1), "yyyy-MM-dd");
+  const filenameDate = queryStartDate;
+  // -----------------------------
+
+  const data = await fetchLinks(apiToken, collectionId, queryStartDate, queryEndDate, mostRecentTuesday, nextMonday);
 
   if (!data.items || data.items.length === 0) {
     return {
