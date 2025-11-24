@@ -114,15 +114,20 @@
                     body: JSON.stringify({ apiToken, collectionId })
                 });
                 
-                const data = await response.json();
-
-                if (response.ok) {
-                    markdownOutput.value = data.markdown;
-                    resultArea.classList.remove('hidden');
-                    statusDiv.textContent = `Success! Found ${data.count} links.`;
-                    statusDiv.className = 'status-message success';
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    const data = await response.json();
+                    if (response.ok) {
+                        markdownOutput.value = data.markdown;
+                        resultArea.classList.remove('hidden');
+                        statusDiv.textContent = `Success! Found ${data.count} links.`;
+                        statusDiv.className = 'status-message success';
+                    } else {
+                        throw new Error(data.error || 'Unknown error occurred');
+                    }
                 } else {
-                    throw new Error(data.error || 'Unknown error occurred');
+                    const text = await response.text();
+                    throw new Error(`Server Error (${response.status}): ${text.substring(0, 100)}...`);
                 }
             } catch (error) {
                 statusDiv.textContent = `Error: ${error.message}`;
