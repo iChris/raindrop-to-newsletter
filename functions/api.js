@@ -1,6 +1,6 @@
 import serverless from 'serverless-http';
 import express from 'express';
-import { getNewsletterData } from '../index.js';
+import { getNewsletterData } from '../lib/newsletter.js';
 
 const app = express();
 
