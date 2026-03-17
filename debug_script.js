@@ -1,17 +1,17 @@
+import { startOfWeek, addDays, format, subDays } from 'date-fns';
 
-import { getNewsletterData } from './index.js';
-
-async function run() {
-    const apiToken = "dae5c2fa-a9e7-41f8-9e4e-3971d5a941a9";
-    const collectionId = "62882736";
-
-    console.log("Testing getNewsletterData directly...");
-    try {
-        const result = await getNewsletterData(apiToken, collectionId);
-        console.log("Result:", result);
-    } catch (error) {
-        console.error("Error:", error);
-    }
+function testDate(testDateStr) {
+  const todayDate = new Date(testDateStr);
+  const referenceDate = subDays(todayDate, 1);
+  const mostRecentTuesday = startOfWeek(referenceDate, { weekStartsOn: 2 });
+  const nextMonday = addDays(mostRecentTuesday, 6);
+  const queryStartDate = format(mostRecentTuesday, "yyyy-MM-dd");
+  const queryEndDate = format(addDays(nextMonday, 1), "yyyy-MM-dd");
+  console.log(`Run date: ${testDateStr} -> Query: ${queryStartDate} to ${queryEndDate}`);
 }
 
-run();
+testDate("2026-03-15T12:00:00Z"); // Sunday
+testDate("2026-03-16T12:00:00Z"); // Monday
+testDate("2026-03-17T12:00:00Z"); // Tuesday
+testDate("2026-03-18T12:00:00Z"); // Wednesday
+testDate("2026-03-19T12:00:00Z"); // Thursday
