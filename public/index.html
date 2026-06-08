@@ -49,10 +49,16 @@
 
             <div id="resultArea" class="hidden">
                 <div class="result-header">
-                    <h2>Generated Markdown</h2>
+                    <h2>Markdown</h2>
                     <button id="copyBtn" class="secondary-btn">Copy to Clipboard</button>
                 </div>
                 <textarea id="markdownOutput" readonly></textarea>
+
+                <div class="result-header" style="margin-top: 1.5rem;">
+                    <h2>Rich Text</h2>
+                    <button id="copyRichBtn" class="secondary-btn">Copy to Clipboard</button>
+                </div>
+                <div id="richOutput" class="rich-output"></div>
             </div>
         </main>
 
@@ -67,9 +73,11 @@
     <script>
         const generateBtn = document.getElementById('generateBtn');
         const copyBtn = document.getElementById('copyBtn');
+        const copyRichBtn = document.getElementById('copyRichBtn');
         const statusDiv = document.getElementById('status');
         const resultArea = document.getElementById('resultArea');
         const markdownOutput = document.getElementById('markdownOutput');
+        const richOutput = document.getElementById('richOutput');
         const apiTokenInput = document.getElementById('apiToken');
         const collectionIdInput = document.getElementById('collectionId');
         const saveCredentialsCheckbox = document.getElementById('saveCredentials');
@@ -119,6 +127,7 @@
                     const data = await response.json();
                     if (response.ok) {
                         markdownOutput.value = data.markdown;
+                        richOutput.innerHTML = data.html;
                         resultArea.classList.remove('hidden');
                         statusDiv.textContent = `Success! Found ${data.count} links.`;
                         statusDiv.className = 'status-message success';
@@ -144,9 +153,21 @@
             navigator.clipboard.writeText(markdownOutput.value).then(() => {
                 const originalText = copyBtn.textContent;
                 copyBtn.textContent = 'Copied!';
-                setTimeout(() => {
-                    copyBtn.textContent = originalText;
-                }, 2000);
+                setTimeout(() => { copyBtn.textContent = originalText; }, 2000);
+            });
+        });
+
+        copyRichBtn.addEventListener('click', () => {
+            const html = richOutput.innerHTML;
+            const blob = new Blob([html], { type: 'text/html' });
+            const plainText = richOutput.innerText;
+            const plainBlob = new Blob([plainText], { type: 'text/plain' });
+            navigator.clipboard.write([
+                new ClipboardItem({ 'text/html': blob, 'text/plain': plainBlob })
+            ]).then(() => {
+                const originalText = copyRichBtn.textContent;
+                copyRichBtn.textContent = 'Copied!';
+                setTimeout(() => { copyRichBtn.textContent = originalText; }, 2000);
             });
         });
     </script>
